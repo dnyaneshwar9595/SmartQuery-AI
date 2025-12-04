@@ -29,9 +29,7 @@ def create_workflow():
     graph.add_conditional_edges("chat_node", tools_condition)
     graph.add_edge("tools", "chat_node")
     
-    # Compile with checkpointer
-    checkpointer = get_checkpointer()
-    workflow = graph.compile(checkpointer=checkpointer)
+    workflow = graph.compile()
     
     return workflow
 

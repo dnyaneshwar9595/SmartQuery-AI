@@ -5,17 +5,17 @@ from ui.utils import load_conversation
 
 def render_sidebar():
     """Render sidebar with conversations"""
-    st.sidebar.title("🤖 LangGraph Chatbot")
+    st.sidebar.title("Data Visualization Tool")
     
     if st.sidebar.button("➕ New Chat", use_container_width=True):
         reset_session()
         st.rerun()
     
-    st.sidebar.header("💬 My Conversations")
+    st.sidebar.header("💬Your Chats")
     
     # Load threads from database
     all_threads = load_all_threads()
-    
+    # print((all_threads))
     if all_threads:
         for thread_id, title in all_threads:
             col1, col2 = st.sidebar.columns([4, 1])
@@ -24,6 +24,7 @@ def render_sidebar():
                 if st.button(title, key=f"btn_{thread_id}", use_container_width=True):
                     st.session_state['thread_id'] = thread_id
                     st.session_state['message_history'] = load_conversation(thread_id)
+                    # print(len(st.session_state['message_history']))
                     st.rerun()
             
             with col2:

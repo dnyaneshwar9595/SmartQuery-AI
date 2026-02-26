@@ -1,23 +1,25 @@
-from core.graph import workflow
-from langchain_core.messages import HumanMessage
+from core.orchestrator_graph import workflow
+from database.chat_history import load_messages_by_thread
+from langchain_core.messages import HumanMessage, AIMessage
 
 def load_conversation(thread_id):
-    """Load conversation from workflow state"""
-    try:
-        state = workflow.get_state(config={"configurable": {"thread_id": thread_id}})
-        messages = state.values.get('messages', [])
+    """Load conversation messages from PostgreSQL database"""
+    messages_from_db = load_messages_by_thread(thread_id)
+    
+    temp_messages = []
+    for message in messages_from_db:
+        if message['role'] == 'user':
+            role = 'user'
+        else:
+            role = 'assistant'
         
-        temp_messages = []
-        for message in messages:
-            if isinstance(message, HumanMessage):
-                role = 'user'
-            else:
-                role = 'assistant'
-            temp_messages.append({'role': role, 'content': message.content})
+        msg_dict = {'role': role, 'content': message['content']}
+        if message.get('chart_config'):
+            msg_dict['chart_config'] = message['chart_config']
         
-        return temp_messages
-    except Exception as e:
-        return []
+        temp_messages.append(msg_dict)
+    
+    return temp_messages
 
 def generate_response(user_input, config):
     """Generate response and stream final assistant message"""

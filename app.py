@@ -3,6 +3,7 @@ from config import Config
 from utils.session import initialize_session
 from ui.sidebar import render_sidebar
 from ui.chat import render_chat_interface
+from database.chat_history import create_tables
 
 # Page configuration
 st.set_page_config(
@@ -10,6 +11,9 @@ st.set_page_config(
     page_icon=Config.PAGE_ICON,
     layout="wide"
 )
+
+# Initialize database tables
+create_tables()
 
 # Initialize session
 initialize_session()

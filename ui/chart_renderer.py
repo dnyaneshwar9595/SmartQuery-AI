@@ -5,20 +5,21 @@ import plotly.graph_objects as go
 
 def render_chart(chart_config: dict, unique_id: str = None):
     """
-    YOUR UI RENDERING LOGIC
-    Takes chart_config and renders the appropriate visualization
+    Render a Plotly chart from a chart_config dictionary.
     
-    Args:
-        chart_config: Chart configuration
-        unique_id: Unique identifier to prevent duplicate keys
+    Expected chart_config keys:
+        chart_type: str  — pie, bar, bar_horizontal, line, scatter, area, table
+        title:      str  — chart title
+        columns:    list  — column names (need at least 2 for most charts)
+        data:       list  — list of rows (each row is a list of values)
     """
     if not chart_config:
         return
-    
+
     chart_type = chart_config.get('chart_type', 'table')
-    title = chart_config.get('title', 'Visualization')
-    columns = chart_config.get('columns', [])
-    data = chart_config.get('data', [])
+    title      = chart_config.get('title', 'Visualization')
+    columns    = chart_config.get('columns', [])
+    data       = chart_config.get('data', [])
     
     # Convert to DataFrame
     df = pd.DataFrame(data, columns=columns)
@@ -26,6 +27,11 @@ def render_chart(chart_config: dict, unique_id: str = None):
     if df.empty:
         st.warning("No data to display")
         return
+    
+    # Safety: most charts need at least 2 columns — fall back to table
+    if len(columns) < 2 and chart_type != 'table':
+        st.info(f"Only {len(columns)} column(s) available — showing as table instead of {chart_type}.")
+        chart_type = 'table'
     
     # Generate unique key
     if unique_id is None:
@@ -49,7 +55,7 @@ def render_chart(chart_config: dict, unique_id: str = None):
             textinfo='percent+label',
             textfont_size=12
         )
-        st.plotly_chart(fig, use_container_width=True, key=f"pie_{unique_id}")
+        st.plotly_chart(fig, width='stretch', key=f"pie_{unique_id}")
     
     # ==================== BAR CHART ====================
     elif chart_type == 'bar':
@@ -70,7 +76,7 @@ def render_chart(chart_config: dict, unique_id: str = None):
             xaxis_title=columns[0].title(),
             yaxis_title=columns[1].title()
         )
-        st.plotly_chart(fig, use_container_width=True, key=f"bar_{unique_id}")
+        st.plotly_chart(fig, width='stretch', key=f"bar_{unique_id}")
     
     # ==================== HORIZONTAL BAR ====================
     elif chart_type == 'bar_horizontal':
@@ -91,7 +97,7 @@ def render_chart(chart_config: dict, unique_id: str = None):
             showlegend=False,
             height=max(400, len(df) * 30)
         )
-        st.plotly_chart(fig, use_container_width=True, key=f"barh_{unique_id}")
+        st.plotly_chart(fig, width='stretch', key=f"barh_{unique_id}")
     
     # ==================== LINE CHART ====================
     elif chart_type == 'line':
@@ -124,9 +130,9 @@ def render_chart(chart_config: dict, unique_id: str = None):
                 markers=True
             )
             fig.update_traces(line=dict(width=3), marker=dict(size=8))
-        
-        st.plotly_chart(fig, use_container_width=True, key=f"line_{unique_id}")
-    
+
+        st.plotly_chart(fig, width='stretch', key=f"line_{unique_id}")
+
     # ==================== SCATTER PLOT ====================
     elif chart_type == 'scatter':
         color_col = columns[2] if len(columns) >= 3 else None
@@ -141,7 +147,7 @@ def render_chart(chart_config: dict, unique_id: str = None):
             trendline="ols" if len(df) > 5 else None
         )
         fig.update_traces(marker=dict(size=12, line=dict(width=2)))
-        st.plotly_chart(fig, use_container_width=True, key=f"scatter_{unique_id}")
+        st.plotly_chart(fig, width='stretch', key=f"scatter_{unique_id}")
     
     # ==================== AREA CHART ====================
     elif chart_type == 'area':
@@ -151,13 +157,13 @@ def render_chart(chart_config: dict, unique_id: str = None):
             y=columns[1],
             title=title
         )
-        st.plotly_chart(fig, use_container_width=True, key=f"area_{unique_id}")
+        st.plotly_chart(fig, width='stretch', key=f"area_{unique_id}")
     
     # ==================== TABLE ====================
     else:
         st.dataframe(
             df,
-            use_container_width=True,
+            width='stretch',
             hide_index=True,
             key=f"table_{unique_id}"
         )

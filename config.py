@@ -9,7 +9,15 @@ class Config:
     MODEL_NAME = "gpt-4o-mini"
     TEMPERATURE = 0.5
     
-    # Database Settings
+    # AWS Athena Settings
+    AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+    AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+    ATHENA_S3_OUTPUT_LOCATION = os.getenv("ATHENA_S3_OUTPUT_LOCATION")
+    ATHENA_DATABASE = os.getenv("ATHENA_DATABASE")
+    ATHENA_WORKGROUP = os.getenv("ATHENA_WORKGROUP", "primary")
+    
+    # Database Settings (for other purposes)
     DB_URI = os.getenv("DB_URI", "postgresql://postgres:postgres@localhost:5432/postgres?sslmode=disable")
     
     # Search Settings

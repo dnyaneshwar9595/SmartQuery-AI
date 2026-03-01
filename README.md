@@ -14,27 +14,11 @@ The system uses an **orchestrator-worker architecture** with two layers:
 
 **Inner Layer (ReAct Agents)** — Each worker is a `create_agent` ReAct loop that autonomously picks and calls tools until the task is done.
 
-```
-User Message
-     │
-     ▼
-┌─────────────┐      ┌──────────────┐
-│ Orchestrator │─────▶│  Data Agent   │  generate_sql → validate_sql → execute_sql
-│  (LLM picks  │      └──────┬───────┘
-│   next agent) │             │
-│              │◀─────────────┘
-│              │      ┌──────────────┐
-│              │─────▶│  Viz Agent    │  create_chart_config, modify_chart_type
-│              │      └──────┬───────┘
-│              │◀─────────────┘
-│              │      ┌──────────────┐
-│              │─────▶│ Analysis Agent│  analyze_data
-│              │      └──────┬───────┘
-│              │◀─────────────┘
-│              │
-│              │─────▶ Synthesizer ──▶ END
-└─────────────┘
-```
+### Workflow Architecture
+
+![Workflow Diagram](workflow_diagram.png)
+
+*The orchestrator routes between specialist agents. Workers loop back to orchestrator for dynamic chaining (e.g., data_agent → orchestrator → viz_agent).*
 
 - **Orchestrator** — Decides which agent to call next via LLM tool-calling (`tool_choice="required"`).
 - **Data Agent** — Generates, validates (LLM-powered), and executes SQL on Athena.
